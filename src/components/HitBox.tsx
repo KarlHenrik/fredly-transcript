@@ -30,16 +30,19 @@ function HitBox({
 
   return (
     <div
-      className="pl-2 pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4"
+      className="pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4"
       onClick={selectCell}
     >
       <div
-        className="col-start-1 row-span-2 w-15 text-right focus:bg-[rgba(214,214,214,0.514)] pr-3"
+        className="col-start-1 row-span-2 w-15 text-right bg-[var(--default-color)] pr-3 focus-within:outline outline-[#46a9ff]"
+        style={{
+          '--default-color': `rgba(114,114,114,${cell.similarity**1.5})`,
+        }}
         tabIndex={0}
       >
         <div
-          className="text-left"
-          style={{ opacity: cell.similarity || "0.5" }}
+          className="pl-1 text-left"
+          style={{ opacity: 0.1 + cell.similarity || "0.5" }}
         >
           <b>{Math.round(cell.similarity * 100) || <br />}</b>
         </div>

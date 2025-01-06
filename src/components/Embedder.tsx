@@ -68,18 +68,18 @@ function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
   return (
     <div className="p-2">
       <div className="border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" onClick={embed_cells}>Embed Interview</div>
-      <div className="border-[0.15rem] border-transparent p-[5px]">Model ready: {ready ? String(ready) : String(ready) + " " + progress}</div>
-      <div className="border-[0.15rem] border-transparent p-[5px]">Embedding ready: {String(embedded)}</div>
+      <div className="border-[0.15rem] border-transparent p-[5px]">Model: {ready ? "Ready" : progress == 0 ? "-" : "Loading: " + progress}</div>
+      <div className="border-[0.15rem] border-transparent p-[5px]">Embedding: {!ready ? "-" : embedded? "Ready" : "Loading..."}</div>
       <form style={{ visibility: embedded ? 'visible' : 'hidden' }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          embed_query();
-        }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            embed_query();
+          }}
       >
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-[70%]"
+          className="w-[70%] align-text-top"
         ></input>
         <button className="border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" type="submit">Query</button>
       </form>
