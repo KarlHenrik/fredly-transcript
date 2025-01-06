@@ -1,0 +1,45 @@
+.FileName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 20px;
+  padding-bottom: 7px;
+  font-size: 15px;
+}
+
+.buttonAction {
+  border: 0.15rem solid transparent;
+  padding: 5px;
+  display: flex;
+  justify-content: baseline;
+}
+
+.buttonAction:hover {
+  border: 0.15rem solid gray;
+  background-color: lightgray;
+  cursor: pointer;
+}
+
+.symbol {
+  width: 20px;
+  padding-right: 10px;
+}
+
+.arrow {
+  border: 0.15rem solid transparent;
+  padding: 5px;
+}
+
+label.buttonAction {
+  width: 96%;
+  display: flex;
+}
+
+.Tutorial {
+  font-size: 15px;
+  text-align: left;
+}
+
+audio {
+  width: 100%;
+}
