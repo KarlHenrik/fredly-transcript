@@ -234,9 +234,10 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
   return (
     <div className="pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4">
       <div
-        className="col-start-1 row-span-2 w-15 text-right bg-[var(--default-color)] pr-3 focus-within:outline outline-[#46a9ff]"
+        className="col-start-1 row-span-2 flex flex-col justify-between w-15 text-right bg-[var(--default-color)] pr-3 outline-3 focus-within:outline outline-[#46a9ff]"
         style={{
           '--default-color': `rgba(114,114,114,${cell.similarity**1.5})`,
+          "outline-offset": "-3px",
         }}
         ref={cellRef}
         tabIndex={0}
@@ -245,7 +246,7 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
           speakerKeyDown(e);
         }}
       >
-        <div className="pl-1 text-left" style={{ opacity: 0.1 + cell.similarity || "" }}>
+        <div className="pl-2 pt-1 text-right" style={{ opacity: 0.1 + cell.similarity || "" }}>
           <b>{Math.round(cell.similarity * 100) || <br />}</b>
         </div>
         <b style={{ color: cell.speaker?.color || "black" }}>
@@ -253,6 +254,9 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
           {cell.ID !== null && ": "}
           {cell.ID === null && "-"}
         </b>
+        <div className="p-2 text-left text-sm text-[#2424246a]">
+          {idx+1}
+        </div>
       </div>
 
       <div className="h-auto col-start-2">{cell.time || "-"}</div>

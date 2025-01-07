@@ -31,7 +31,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-y-hidden">
       {/*Header*/}
       <div className="flex flex-row">
         <div className="w-2/12 bg-[#fdf5e6]"></div>
@@ -90,7 +90,7 @@ function App() {
             </div>
           )}
           {contents?.length !== 0 && (
-            <div className="flex flex-col overflow-auto w-5/12 pr-5">
+            <div className="flex flex-col overflow-y-scroll w-5/12 pr-5">
               <TextDisplay
                 contents={contents}
                 newfocus={newfocus}
@@ -100,7 +100,7 @@ function App() {
             </div>
           )}
           {contents?.length !== 0 && (
-            <div className="flex flex-col overflow-auto w-5/12 pr-5">
+            <div className="flex flex-col overflow-y-scroll w-5/12 pr-5">
               <HitsDisplay
                 contents={contents}
                 newfocus={newfocus}

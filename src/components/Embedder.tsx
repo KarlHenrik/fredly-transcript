@@ -58,6 +58,12 @@ function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
     });
   }
 
+  function submit(e) {
+    console.log(e.key)
+    e.preventDefault()
+    embed_query()
+  }
+
   function embed_query() {
     worker.current.postMessage({
       text: query,
@@ -65,24 +71,32 @@ function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
     });
   }
 
+  function pasteWithoutFormatting(e) {
+    e.preventDefault();
+    
+    // Get text from the clipboard
+    const text = e.clipboardData.getData('text/plain');
+
+    // Insert text into HTML document
+    document.execCommand('insertText', false, text);
+  }
+
   return (
-    <div className="p-2">
-      <div className="border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" onClick={embed_cells}>Embed Interview</div>
+    <div className="pl-2 w-full">
+      <div className="w-5/6 border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" onClick={embed_cells}>Embed Interview</div>
       <div className="border-[0.15rem] border-transparent p-[5px]">Model: {ready ? "Ready" : progress == 0 ? "-" : "Loading: " + progress}</div>
       <div className="border-[0.15rem] border-transparent p-[5px]">Embedding: {!ready ? "-" : embedded? "Ready" : "Loading..."}</div>
-      <form style={{ visibility: embedded ? 'visible' : 'hidden' }}
-          onSubmit={(e) => {
-            e.preventDefault();
-            embed_query();
-          }}
-      >
-        <input
+      <div className="flex gap-2" style={{ visibility: embedded ? 'visible' : 'hidden' }}>
+        <span
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-[70%] align-text-top"
-        ></input>
-        <button className="border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" type="submit">Query</button>
-      </form>
+          onKeyDown={(e) => (e.key == "Enter" && !e.shiftKey) ? submit(e) : ""}
+          onInput={(e) => setQuery(e.currentTarget.textContent || "")}
+          onPaste={(e) => pasteWithoutFormatting(e)}
+          className="p-1 w-[70%] rounded-sm field-sizing-content resize-none bg-white"
+          contentEditable={true}
+        ></span>
+        <button className="border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" onClick={embed_query}>Query</button>
+      </div>
     </div>
   );
 }
