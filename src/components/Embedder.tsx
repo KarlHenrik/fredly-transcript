@@ -59,7 +59,6 @@ function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
   }
 
   function submit(e) {
-    console.log(e.key)
     e.preventDefault()
     embed_query()
   }

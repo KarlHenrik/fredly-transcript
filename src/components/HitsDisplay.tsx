@@ -18,6 +18,7 @@ function HitsDisplay({
   newfocus,
   selectedSpeakers,
 }: HitsDisplayProps) {
+
   if (contents) {
     if (contents[0].similarity === null) {
       return null;
@@ -29,7 +30,7 @@ function HitsDisplay({
     const sorted = contents.toSorted(
       (a: Cell, b: Cell) => b.similarity - a.similarity
     );
-    const filtered = sorted.filter((cell) => selectedSpeakers[cell.ID]);
+    const filtered = sorted.filter((cell) => selectedSpeakers[cell.ID] || cell.ID == null);
     return filtered.map((cell: Cell, idx: number) => (
       <HitBox
         key={idx + cell.text + "s"}

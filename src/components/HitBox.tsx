@@ -27,7 +27,6 @@ function HitBox({
       },
     });
   }
-
   return (
     <div
       className="pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4"
@@ -37,7 +36,7 @@ function HitBox({
         className="col-start-1 row-span-2 flex flex-col justify-between w-15 text-right bg-[var(--default-color)] pr-3 outline-3 focus-within:outline outline-[#46a9ff]"
         style={{
           '--default-color': `rgba(114,114,114,${cell.similarity**1.5})`,
-          "outline-offset": "-3px",
+          "outlineOffset": "-3px",
         }}
         tabIndex={0}
       >

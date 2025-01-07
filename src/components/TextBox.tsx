@@ -237,7 +237,7 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
         className="col-start-1 row-span-2 flex flex-col justify-between w-15 text-right bg-[var(--default-color)] pr-3 outline-3 focus-within:outline outline-[#46a9ff]"
         style={{
           '--default-color': `rgba(114,114,114,${cell.similarity**1.5})`,
-          "outline-offset": "-3px",
+          "outlineOffset": "-3px",
         }}
         ref={cellRef}
         tabIndex={0}
