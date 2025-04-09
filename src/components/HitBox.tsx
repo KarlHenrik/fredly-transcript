@@ -29,7 +29,7 @@ function HitBox({
   }
   return (
     <div
-      className="pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4"
+      className="grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4 pr-[2%]"
       onClick={selectCell}
     >
       <div

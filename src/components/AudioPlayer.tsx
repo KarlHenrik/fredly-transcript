@@ -50,6 +50,8 @@ function AudioPlayerComponent() {
 
     switch (event.key) {
       case " ": // Spacebar: toggle play/pause
+        if (activeElement?.classList.contains("CellInput")) break;
+        if (activeElement?.classList.contains("QueryInput")) break;
         event.preventDefault(); // Prevent default spacebar action (page down)
         if (audioPlayerRefCurrent.paused) {
           audioPlayerRefCurrent.play();
@@ -71,11 +73,11 @@ function AudioPlayerComponent() {
         break;
       case "t":
         if (!activeElement?.classList.contains("Speaker")) break; // Has to be focusing speaker
-        if (!activeElement?.previousSibling?.firstChild) break; // Has to be next to timestamp
-        if (!(activeElement.previousSibling.firstChild instanceof Text)) break;
+        if (!activeElement?.nextSibling?.firstChild) break; // Has to be next to timestamp
+        if (!(activeElement.nextSibling.firstChild instanceof Text)) break;
 
         audioPlayerRefCurrent.currentTime = timeStringToSeconds(
-          activeElement.previousSibling.firstChild.data
+          activeElement.nextSibling.firstChild.data
         );
         audioPlayerRefCurrent.play();
         break;

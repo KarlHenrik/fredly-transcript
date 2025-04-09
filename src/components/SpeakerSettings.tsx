@@ -9,6 +9,8 @@ type SpeakerSettignsProps = {
   speakers: Speaker[];
   setSelectedSpeakers: React.Dispatch<React.SetStateAction<boolean[]>>;
   selectedSpeakers: boolean[];
+  contentEditable: boolean;
+  embeddingView: boolean;
 };
 
 function SpeakerSettings({
@@ -16,10 +18,11 @@ function SpeakerSettings({
   dispatch,
   selectedSpeakers,
   setSelectedSpeakers,
+  contentEditable,
+  embeddingView,
 }: SpeakerSettignsProps) {
   const [inputs, setInputs] = useState(() => speakers.map((r) => r));
   const [editing, setEditing] = useState(false);
-  const [allChecked, setAllChecked] = useState(true);
 
   function newName(new_value: string, idx: number) {
     const new_names = inputs.with(idx, {
@@ -55,25 +58,30 @@ function SpeakerSettings({
   return (
     <div>
       <div className="flex">
-        <input
-          type="checkbox"
-          checked={selectedSpeakers.every((s) => s)}
-          onChange={(e) =>
-            setSelectedSpeakers(selectedSpeakers.map((s) => e.target.checked))
-          }
-        />
-        Speakers
-        <span
-          onClick={() => {
-            setEditing(!editing);
-          }}
-          className="Edit"
-        >
+        {embeddingView && (
+          <input
+            type="checkbox"
+            checked={selectedSpeakers.every((s) => s)}
+            onChange={(e) =>
+              setSelectedSpeakers(selectedSpeakers.map((s) => e.target.checked))
+            }
+          />  
+        )}
+        Speakers:
+        {contentEditable && (
+          <span
+            onClick={() => {
+              setEditing(!editing);
+            }}
+            className="Edit"
+          >
           <FontAwesomeIcon icon={faPen} />
         </span>
+        )}
       </div>
       {speakers.map((speaker, idx) => (
         <div key={idx}>
+          {embeddingView && (
           <input
             type="checkbox"
             checked={selectedSpeakers[idx]}
@@ -83,14 +91,16 @@ function SpeakerSettings({
               )
             }
           />
+          )}
+          <>{contentEditable ? (idx + 1 + ":") : ""}</>
           {!editing && (
             <>
-              {idx + 1}: <b style={{ color: speaker.color }}>{speaker.name}</b>
+              <b style={{ color: speaker.color }}>{speaker.name}</b>
             </>
           )}
           {editing && (
             <div className="flex">
-              {idx + 1}:{" "}
+              {" "}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

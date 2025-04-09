@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Cell, Speaker, Action } from "../hooks/types";
+import { Cell, Speaker, Action, View } from "../hooks/types";
 import { KeyboardEvent } from "react";
 
 type TextBoxProps = {
@@ -8,6 +8,8 @@ type TextBoxProps = {
   dispatch: React.Dispatch<Action>;
   speakers: Speaker[];
   newfocus: number | null;
+  view: View;
+  embeddingView: boolean;
 };
 
 function scrollIntoViewIfNotVisible(target) {
@@ -26,7 +28,7 @@ function scrollIntoViewIfNotVisible(target) {
   }
 }
 
-function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
+function TextBox({ cell, idx, dispatch, speakers, newfocus, view, embeddingView }: TextBoxProps) {
   const [input, setInput] = useState(cell.text);
   const cellRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +46,24 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
 
   function speakerKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     const key = e.key;
+    if (key === "w" || key === "W" || key === "ArrowUp") {
+      focusPrevSpeaker();
+      e.preventDefault();
+      return;
+    }
+    if (key === "s" || key === "S" || key === "ArrowDown") {
+      focusNextSpeaker();
+      e.preventDefault();
+      return;
+    }
+    if (key === "ArrowRight") {
+      focusQuote();
+      e.preventDefault();
+      return;
+    }
+    if (view !== View.Editing) {
+      return;
+    }
     if (isFinite(Number(key))) {
       // Not a number TODO check if this still works
       const new_ID = Number(key) - 1;
@@ -59,22 +79,6 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
         e.preventDefault();
         return;
       }
-    }
-
-    if (key === "w" || key === "W" || key === "ArrowUp") {
-      focusPrevSpeaker();
-      e.preventDefault();
-      return;
-    }
-    if (key === "s" || key === "S" || key === "ArrowDown") {
-      focusNextSpeaker();
-      e.preventDefault();
-      return;
-    }
-    if (key === "ArrowRight") {
-      focusQuote();
-      e.preventDefault();
-      return;
     }
     if (key === "|" || key === "Backspace" || key === "'") {
       dispatch({
@@ -232,9 +236,9 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
     });
   }
   return (
-    <div className="pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4">
+    <div className="pr-1 grid grid-rows-[auto_auto] grid-cols-[8rem_auto] gap-x-4 border-b border-[#89898926]" style={embeddingView ? { "padding-right": `2%`} : { "padding-right": `30%`}}>
       <div
-        className="col-start-1 row-span-2 flex flex-col justify-between w-15 text-right bg-[var(--default-color)] pr-3 outline-3 focus-within:outline outline-[#46a9ff]"
+        className="Speaker col-start-1 row-span-2 flex flex-col justify-between w-15 text-right bg-[var(--default-color)] pr-3 outline-3 focus-within:outline outline-[#46a9ff]"
         style={{
           '--default-color': `rgba(114,114,114,${cell.similarity**1.5})`,
           "outlineOffset": "-3px",
@@ -247,7 +251,13 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
         }}
       >
         <div className="pl-2 pt-1 text-right" style={{ opacity: 0.1 + cell.similarity || "" }}>
-          <b>{Math.round(cell.similarity * 100) || <br />}</b>
+          <b>
+            {(embeddingView && cell.similarity) ? (
+              Math.round(cell.similarity * 100)
+            ) : (
+              <br />
+            )}
+          </b>
         </div>
         <b style={{ color: cell.speaker?.color || "black" }}>
           {cell.speaker && cell.speaker.name}
@@ -259,10 +269,10 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
         </div>
       </div>
 
-      <div className="h-auto col-start-2">{cell.time || "-"}</div>
+      <div className="h-auto col-start-2">{cell.time || ""}</div>
 
       <div
-        className="text-left col-start-2 whitespace-pre-line pb-4 display:inline-block"
+        className="CellInput text-left col-start-2 whitespace-pre-line pb-4 display:inline-block"
         tabIndex={0}
         onKeyDown={(e) => {
           quoteKeyDown(e);
@@ -277,7 +287,7 @@ function TextBox({ cell, idx, dispatch, speakers, newfocus }: TextBoxProps) {
             },
           });
         }}
-        contentEditable={true}
+        contentEditable={view === View.Editing}
         suppressContentEditableWarning={true}
       >
         {cell.text}

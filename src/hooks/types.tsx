@@ -6,6 +6,12 @@ export interface Cell {
   similarity: number | null;
 }
 
+export interface ProtoCell {
+  text: string;
+  time: string;
+  speaker_name: string;
+}
+
 export interface Speaker {
   name: string;
   color: string;
@@ -23,4 +29,15 @@ export interface State {
   copiedCell: Cell | null;
   prevfocus: number | null;
   newfocus: number | null;
+}
+
+export interface CompactState {
+  contents: Cell[];
+  focus: number | null;
+}
+
+export enum View {
+  Standard,
+  Compact,
+  Editing,
 }

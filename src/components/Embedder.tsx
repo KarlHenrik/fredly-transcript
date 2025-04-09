@@ -6,9 +6,11 @@ type EmbedderProps = {
   dispatch: React.Dispatch<Action>;
   speakers: Speaker[];
   newfocus: number | null;
+  embeddingView: boolean;
+  setEmbeddingView: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
+function Embedder({ speakers, contents, newfocus, dispatch, embeddingView, setEmbeddingView }: EmbedderProps) {
   //@ts-expect-error haven't fixed null stuff, code should work
   const worker: MutableRefObject<Worker> = useRef(null);
   const [progress, setProgress] = useState(0);
@@ -82,6 +84,7 @@ function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
 
   return (
     <div className="pl-2 w-full">
+      <button className="" onClick={() => setEmbeddingView(!embeddingView)}>Query View</button>
       <div className="w-5/6 border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" onClick={embed_cells}>Embed Interview</div>
       <div className="border-[0.15rem] border-transparent p-[5px]">Model: {ready ? "Ready" : progress == 0 ? "-" : "Loading: " + progress}</div>
       <div className="border-[0.15rem] border-transparent p-[5px]">Embedding: {!ready ? "-" : embedded? "Ready" : "Loading..."}</div>
@@ -91,7 +94,7 @@ function Embedder({ speakers, contents, newfocus, dispatch }: EmbedderProps) {
           onKeyDown={(e) => (e.key == "Enter" && !e.shiftKey) ? submit(e) : ""}
           onInput={(e) => setQuery(e.currentTarget.textContent || "")}
           onPaste={(e) => pasteWithoutFormatting(e)}
-          className="p-1 w-[70%] rounded-sm field-sizing-content resize-none bg-white"
+          className="QueryInput p-1 w-[70%] rounded-sm field-sizing-content resize-none bg-white"
           contentEditable={true}
         ></span>
         <button className="border-[0.15rem] border-transparent p-[5px] hover:border-gray-500 hover:bg-gray-300 hover:cursor-pointer" onClick={embed_query}>Query</button>

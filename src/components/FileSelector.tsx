@@ -3,7 +3,7 @@ import { useDropzone } from "react-dropzone";
 import "./FileSelector.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileLines } from "@fortawesome/free-regular-svg-icons";
-import { Cell, Speaker, Action } from "../hooks/types";
+import { Cell, Speaker, Action, ProtoCell } from "../hooks/types";
 
 type FileSelector = {
   setFileName: (name: string) => void;
@@ -11,7 +11,7 @@ type FileSelector = {
   speakers: Speaker[];
 };
 
-function FileSelector({ setFileName, dispatch, speakers }: FileSelector) {
+function FileSelector({ setFileName, dispatch }: FileSelector) {
   function loadFile(acceptedFiles: File[]): void {
     acceptedFiles.forEach((file: File) => {
       const reader = new FileReader();
@@ -21,11 +21,12 @@ function FileSelector({ setFileName, dispatch, speakers }: FileSelector) {
       reader.onload = () => {
         setFileName(file.name);
         file.text().then((t) => {
-          const new_contents = read_vtt(t);
+          const { new_contents, speakers } = parse_vtt(t);
           dispatch({
-            type: "setContents",
+            type: "setState",
             payload: {
               contents: new_contents,
+              speakers: speakers,
             },
           });
         });
@@ -34,18 +35,14 @@ function FileSelector({ setFileName, dispatch, speakers }: FileSelector) {
       return;
     });
   }
-  const onDrop = useCallback(loadFile, [setFileName, speakers]);
+  const onDrop = useCallback(loadFile, [setFileName, dispatch]);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "text/vtt": [".vtt"] },
   });
 
   function loadDemo() {
-    // TODO this will not work
-    setFileName("test_transcript.vtt");
-    //const { speakers, contents } = JSON.parse(
-    //  '{"speakers":[{"name":"Luke","color":"#369ACC"},{"name":"Obi-Wan","color":"#A83548"},{"name":"C-3PO","color":"#FFC615"},{"name":"R2-D2","color":"#12715D"}],"contents":[{"text":"No, my father didn\'t fight in the wars.","time":"00:04.2","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"He was a navigator on a spice freighter.","time":"00:05.6","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"That\'s what your uncle told you.","time":"00:07.6","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"He didn\'t hold with your father\'s ideals, thought he should have stayed here and not gotten involved.","time":"00:09.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"You fought in the Clone Wars?","time":"00:15.3","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"Yes.","time":"00:17.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"I was once a Jedi Knight, the same as your father.","time":"00:18.2","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"I wish I\'d known him.","time":"00:20.7","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"He was the best star pilot in the galaxy.","time":"00:25.6","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"And a cunning warrior.","time":"00:29.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"I understand you\'ve become quite a good pilot yourself.","time":"00:31.3","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"And he was a good friend.","time":"00:36.2","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Which reminds me, I have something here for you.","time":"00:39.2","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Your father wanted you to have this when you were old enough, but your uncle wouldn\'t allow it.","time":"00:45.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"He feared you might follow old Obi-Wan on some damn fool idealistic crusade like your father did.","time":"00:51.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Sir, if you\'ll not be needing me, I\'ll close down for a while.","time":"00:57.9","ID":2,"speaker":{"name":"C-3PO","color":"#FFC615"}},{"text":"Sure, go ahead.","time":"01:00.3","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"What is it?","time":"01:04.6","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"The father\'s light saber.","time":"01:06.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"This is the weapon of a Jedi Knight.","time":"01:08.8","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Not as clumsy or random as a blaster.","time":"01:11.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"An elegant weapon for a more civilized age.","time":"01:15.4","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"For over a thousand generations, the Jedi Knights were the guardians of peace and justice in the Old Republic.","time":"01:22.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Before the dark times.","time":"01:29.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Before the Empire.","time":"01:32.1","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"How did my father die?","time":"01:36.9","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"A young Jedi named Darth Vader, who was a pupil of mine until he turned to evil, helped the Empire hunt down and destroy the Jedi Knights.","time":"01:41.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"He betrayed and murdered your father.","time":"01:52.1","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Now the Jedi are all but extinct.","time":"01:56.4","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Vader was seduced by the dark side of the Force.","time":"01:59.9","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"The Force?","time":"02:04.5","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"The Force is what gives the Jedi his power.","time":"02:06.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"It\'s an energy field created by all living things.","time":"02:09.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"It surrounds us and penetrates us.","time":"02:12.4","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"It binds the galaxy together.","time":"02:15.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"*Beeps*","time":"","speaker":{"name":"R2-D2","color":"#12715D"},"ID":3}],"copiedCell":null,"prevfocus":27,"newfocus":0}'
-    //);
+    setFileName("demo.vtt");
     const { speakers, contents } = JSON.parse(meditations());
     dispatch({
       type: "setState",
@@ -75,72 +72,159 @@ function FileSelector({ setFileName, dispatch, speakers }: FileSelector) {
   );
 }
 
+function parse_vtt(raw_text: string) {
+  const proto_contents = parse_vtt_cells(raw_text);
+  const complete_contents = complete_sentences(proto_contents);
+  const { speakers, new_contents } = add_proper_speakers(complete_contents);
+  return { speakers, new_contents };
+}
+
 function time_from_vtt(line_with_time: string) {
-  return line_with_time.trim().split(/ --> /g)[0].slice(0, -2); // hh:mm:ss:x
+  // capture and assign starting substring with any combination of numbers, colons and periods before space, no matter how long
+  const time_to_parse = line_with_time.match(/^([\d:.]+)/)?.[1];
+  if (!time_to_parse) {
+    return "";
+  }
+  let totalSeconds;
+  let hours;
+  // if it contains a period
+  if (!time_to_parse.includes(".")) {
+    const timeParts = time_to_parse.split(/[:,.]/).map(Number);
+
+    hours = timeParts[0]
+    const minutes = timeParts[1]
+    const seconds = timeParts[2]
+
+    totalSeconds = hours * 3600 + minutes * 60 + seconds;
+  } else {
+    const timeParts = time_to_parse.split(/[:,.]/).map(Number);
+
+    hours = timeParts.length === 4 ? timeParts[0] : 0;
+    const minutes = timeParts.length === 4 ? timeParts[1] : timeParts[0];
+    const seconds = timeParts.length === 4 ? timeParts[2] : timeParts[1];
+    const milliseconds = timeParts.length === 4 ? parseInt(timeParts[3].toString().padEnd(3, '0')) : parseInt(timeParts[2].toString().padEnd(3, '0'));
+    totalSeconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
+  }
+
+  // Format the time as hh:mm:ss.s or mm:ss.s if hours is 0
+  const formattedTime = new Date(totalSeconds * 1000).toISOString().substr(hours === 0 ? 14 : 11, hours === 0 ? 8 : 12);
+
+  return formattedTime;
 }
 
 function parseSpeaker(line: string) {
-  const regex = /^\[SPEAKER_0?(\d+)\]: (.*)$/;
+  const regex = /^([^:]+): (.*)$/;
   const match = line.match(regex);
-  // If the line matches the pattern, return the speaker ID and the rest of the string
+  // If the line matches the pattern, return the speaker name and the rest of the string
   if (match) {
-    const speakerID = Number(match[1]);
+    const speaker_name = match[1];
     const message = match[2];
-    return { speakerID, message };
+    return { speaker_name, message };
   } else {
-    const speakerID = null;
+    const speaker_name = "";
     const message = line;
-    return { speakerID, message };
+    return { speaker_name, message };
   }
 }
 
-function read_vtt(raw_text: string): Cell[] {
+function parse_vtt_cells(raw_text: string): ProtoCell[] {
   const lines = raw_text.split(/\r?\n|\r|\n/g); // Split by newline
+  const contents: ProtoCell[] = [];
+  let current_cell: ProtoCell = {
+    text: "",
+    time: "",
+    speaker_name: "",
+  };
 
-  if (lines[3].includes("[A")) {
-    // Check for newer format where lines 4 is split over two lines, with info about tech used.
-    const startIndex = lines[3].indexOf("[A");
-    const endIndex = lines[3].indexOf("]", startIndex);
-    if (endIndex !== -1) {
-      lines[3] = lines[3].substring(0, startIndex) + lines[4];
-      lines.splice(4, 1);
+  lines.slice(2).forEach((line) => {
+    if (/^\d{2}:\d{2}/.test(line)) { // If line starts with dd:dd, timestamp
+      if (current_cell.text !== "") {
+        contents.push(current_cell);
+      }
+      current_cell = {
+        text: "",
+        time: time_from_vtt(line),
+        speaker_name: "",
+      };
     }
-  }
+    else if (/^[^:]+:/.test(line)) { // If line starts with chars then colon, speaker
+      let { speaker_name, message } = parseSpeaker(line)
+      if (message == "[Automatisk tekstet av Autotekst med OpenAI Whisper V3. Kan inneholde feil.]") {
+        message = "";
+      }
+      if (message == "[Automatic captions by Autotekst using OpenAI Whisper V3. May contain recognition errors.]") {
+        message = "";
+      }
+      current_cell.speaker_name = speaker_name;
+      current_cell.text += message;
+    }
+    else { // Adding to the text of the current cell
+      current_cell.text += line;
+    }
+  })
+  contents.push(current_cell);
+  return contents
+}
 
-  const contents: Cell[] = [];
+function add_proper_speakers(contents: ProtoCell[]) {
+  const speaker_names = Array.from(new Set(contents.map((cell) => cell.speaker_name)))
+  const speakers = speaker_names.map((name: string, index: number) => {
+    const colors = ["#369ACC", "#A83548", "#FFC615", "#12715D", "#A83548", "#FF5733", "#33FF57", "#3357FF", "#FF33A8"];
+    // change this EXACT type of name "[SPEAKER_01]", with brackets, to this type of name "Speaker_1", if it contains SPEAKER_0
+    name = name.replace(/\[SPEAKER_0(\d)\]/, "Speaker_$1");
+    return { name: name, color: colors[index % colors.length] };
+  })
+
+  const new_contents = contents.map((cell) => {
+    const ID = speaker_names.findIndex((speaker_name) => speaker_name === cell.speaker_name);
+    return { 
+      text: cell.text,
+      time: cell.time,
+      ID: ID,
+      speaker: speakers[ID],
+    }
+  })
+  return { speakers, new_contents }
+}
+  
+
+function complete_sentences(contents: ProtoCell[]) {
+  const new_contents: ProtoCell[] = [];
   let sentence_completed = true;
-  for (let i = 2; i < lines.length - 1; i += 3) {
-    const { speakerID, message } = parseSpeaker(lines[i + 1]) || {};
-    const new_sentences = message
+
+  for (let i = 0; i < contents.length; i++) {
+    const new_sentences = contents[i].text
       .replace(/((?<!\bMr|\bMs|\bMrs)[.?!])\s*(?=[A-Z])/g, "$1|")
       .split("|");
     if (!sentence_completed) {
-      contents[contents.length - 1].text += " " + new_sentences.shift()?.trim();
+      new_contents[new_contents.length - 1].text += " " + new_sentences.shift()?.trim();
     }
     if (new_sentences.length !== 0) {
-      contents.push({
+      new_contents.push({
         text: new_sentences.shift()?.trim() || "",
-        time: time_from_vtt(lines[i]),
-        ID: speakerID,
-        speaker: null,
+        time: contents[i].time,
+        speaker_name: contents[i].speaker_name,
       });
     }
     for (const sentence of new_sentences) {
-      contents.push({
+      new_contents.push({
         text: sentence.trim(),
         time: "",
-        ID: speakerID,
-        speaker: null,
+        speaker_name: contents[i].speaker_name,
       });
     }
     sentence_completed =
-      null !== contents[contents.length - 1].text.match(/\.|\?|!/g); // If the last sentence contains punctuation, it is completed
+      null !== new_contents[new_contents.length - 1].text.match(/\.|\?|!/g); // If the last sentence contains punctuation, it is completed
   }
-  return contents;
+
+  return new_contents
 }
 
 export default FileSelector;
 
+function star_wars() {
+  return '{"speakers":[{"name":"Luke","color":"#369ACC"},{"name":"Obi-Wan","color":"#A83548"},{"name":"C-3PO","color":"#FFC615"},{"name":"R2-D2","color":"#12715D"}],"contents":[{"text":"No, my father didn\'t fight in the wars.","time":"00:04.2","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"He was a navigator on a spice freighter.","time":"00:05.6","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"That\'s what your uncle told you.","time":"00:07.6","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"He didn\'t hold with your father\'s ideals, thought he should have stayed here and not gotten involved.","time":"00:09.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"You fought in the Clone Wars?","time":"00:15.3","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"Yes.","time":"00:17.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"I was once a Jedi Knight, the same as your father.","time":"00:18.2","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"I wish I\'d known him.","time":"00:20.7","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"He was the best star pilot in the galaxy.","time":"00:25.6","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"And a cunning warrior.","time":"00:29.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"I understand you\'ve become quite a good pilot yourself.","time":"00:31.3","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"And he was a good friend.","time":"00:36.2","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Which reminds me, I have something here for you.","time":"00:39.2","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Your father wanted you to have this when you were old enough, but your uncle wouldn\'t allow it.","time":"00:45.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"He feared you might follow old Obi-Wan on some damn fool idealistic crusade like your father did.","time":"00:51.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Sir, if you\'ll not be needing me, I\'ll close down for a while.","time":"00:57.9","ID":2,"speaker":{"name":"C-3PO","color":"#FFC615"}},{"text":"Sure, go ahead.","time":"01:00.3","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"What is it?","time":"01:04.6","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"The father\'s light saber.","time":"01:06.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"This is the weapon of a Jedi Knight.","time":"01:08.8","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Not as clumsy or random as a blaster.","time":"01:11.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"An elegant weapon for a more civilized age.","time":"01:15.4","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"For over a thousand generations, the Jedi Knights were the guardians of peace and justice in the Old Republic.","time":"01:22.5","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Before the dark times.","time":"01:29.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Before the Empire.","time":"01:32.1","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"How did my father die?","time":"01:36.9","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"A young Jedi named Darth Vader, who was a pupil of mine until he turned to evil, helped the Empire hunt down and destroy the Jedi Knights.","time":"01:41.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"He betrayed and murdered your father.","time":"01:52.1","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Now the Jedi are all but extinct.","time":"01:56.4","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"Vader was seduced by the dark side of the Force.","time":"01:59.9","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"The Force?","time":"02:04.5","ID":0,"speaker":{"name":"Luke","color":"#369ACC"}},{"text":"The Force is what gives the Jedi his power.","time":"02:06.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"It\'s an energy field created by all living things.","time":"02:09.7","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"It surrounds us and penetrates us.","time":"02:12.4","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"It binds the galaxy together.","time":"02:15.0","ID":1,"speaker":{"name":"Obi-Wan","color":"#A83548"}},{"text":"*Beeps*","time":"","speaker":{"name":"R2-D2","color":"#12715D"},"ID":3}],"copiedCell":null,"prevfocus":27,"newfocus":0}'
+}
 
 function meditations() {
   return `{
